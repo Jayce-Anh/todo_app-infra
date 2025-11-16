@@ -7,7 +7,7 @@
 **/*.tfstate.lock.info
 
 # Ignore sensitive variable files
-**/terraform.tfvars 
+#**/terraform.tfvars 
 **/*.auto.tfvars
 **/secrets.tfvars
 
