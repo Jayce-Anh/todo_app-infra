@@ -1,9 +1,9 @@
 ################################# CLOUDWATCH #######################################
 
 #----------------------- CloudWatch Alarms  -----------------------
-# High CPU Utilization Alarm
+# High CPU Utilization Alarm (for single EC2 instance only)
 resource "aws_cloudwatch_metric_alarm" "ec2_cpu_high" {
-  count = var.enable_cloudwatch ? 1 : 0
+  count = var.enable_cloudwatch && !var.enable_asg ? 1 : 0
   
   alarm_name          = "${var.project.env}-${var.project.name}-${var.instance_name}-cpu-high"
   comparison_operator = "GreaterThanThreshold"
@@ -17,7 +17,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_cpu_high" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    InstanceId = aws_instance.ec2.id
+    InstanceId = aws_instance.ec2[0].id
   }
 
   alarm_actions = var.cloudwatch_alarms.alarm_actions
@@ -28,9 +28,9 @@ resource "aws_cloudwatch_metric_alarm" "ec2_cpu_high" {
   })
 }
 
-# Status Check Failed Alarm
+# Status Check Failed Alarm (for single EC2 instance only)
 resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed" {
-  count = var.enable_cloudwatch ? 1 : 0
+  count = var.enable_cloudwatch && !var.enable_asg ? 1 : 0
   
   alarm_name          = "${var.project.env}-${var.project.name}-${var.instance_name}-status-check-failed"
   comparison_operator = "GreaterThanThreshold"
@@ -44,7 +44,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    InstanceId = aws_instance.ec2.id
+    InstanceId = aws_instance.ec2[0].id
   }
 
   alarm_actions = var.cloudwatch_alarms.alarm_actions
@@ -55,9 +55,9 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed" {
   })
 }
 
-# Instance Status Check Failed Alarm
+# Instance Status Check Failed Alarm (for single EC2 instance only)
 resource "aws_cloudwatch_metric_alarm" "ec2_instance_status_check_failed" {
-  count = var.enable_cloudwatch ? 1 : 0
+  count = var.enable_cloudwatch && !var.enable_asg ? 1 : 0
   
   alarm_name          = "${var.project.env}-${var.project.name}-${var.instance_name}-instance-check-failed"
   comparison_operator = "GreaterThanThreshold"
@@ -71,7 +71,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_instance_status_check_failed" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    InstanceId = aws_instance.ec2.id
+    InstanceId = aws_instance.ec2[0].id
   }
 
   alarm_actions = var.cloudwatch_alarms.alarm_actions
@@ -84,7 +84,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_instance_status_check_failed" {
 
 # System Status Check Failed Alarm
 resource "aws_cloudwatch_metric_alarm" "ec2_system_status_check_failed" {
-  count = var.enable_cloudwatch ? 1 : 0
+  count = var.enable_cloudwatch && !var.enable_asg ? 1 : 0
   
   alarm_name          = "${var.project.env}-${var.project.name}-${var.instance_name}-system-check-failed"
   comparison_operator = "GreaterThanThreshold"
@@ -98,7 +98,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_system_status_check_failed" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    InstanceId = aws_instance.ec2.id
+    InstanceId = aws_instance.ec2[0].id
   }
 
   alarm_actions = var.cloudwatch_alarms.alarm_actions
@@ -111,7 +111,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_system_status_check_failed" {
 
 # High Disk Read Operations Alarm
 resource "aws_cloudwatch_metric_alarm" "ec2_disk_read_ops_high" {
-  count = var.enable_cloudwatch ? 1 : 0
+  count = var.enable_cloudwatch && !var.enable_asg ? 1 : 0
   
   alarm_name          = "${var.project.env}-${var.project.name}-${var.instance_name}-disk-read-ops-high"
   comparison_operator = "GreaterThanThreshold"
@@ -125,7 +125,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_disk_read_ops_high" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    InstanceId = aws_instance.ec2.id
+    InstanceId = aws_instance.ec2[0].id
   }
 
   alarm_actions = var.cloudwatch_alarms.alarm_actions
@@ -138,7 +138,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_disk_read_ops_high" {
 
 # High Disk Write Operations Alarm
 resource "aws_cloudwatch_metric_alarm" "ec2_disk_write_ops_high" {
-  count = var.enable_cloudwatch ? 1 : 0
+  count = var.enable_cloudwatch && !var.enable_asg ? 1 : 0
   
   alarm_name          = "${var.project.env}-${var.project.name}-${var.instance_name}-disk-write-ops-high"
   comparison_operator = "GreaterThanThreshold"
@@ -152,7 +152,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_disk_write_ops_high" {
   treat_missing_data  = "notBreaching"
 
   dimensions = {
-    InstanceId = aws_instance.ec2.id
+    InstanceId = aws_instance.ec2[0].id
   }
 
   alarm_actions = var.cloudwatch_alarms.alarm_actions
@@ -165,7 +165,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_disk_write_ops_high" {
 
 #----------------------- CloudWatch Dashboard -----------------------
 resource "aws_cloudwatch_dashboard" "ec2_dashboard" {
-  count = var.enable_cloudwatch ? 1 : 0
+  count = var.enable_cloudwatch && !var.enable_asg ? 1 : 0
   
   dashboard_name = "${var.project.env}-${var.project.name}-${var.instance_name}-dashboard"
 

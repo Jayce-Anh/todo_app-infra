@@ -11,8 +11,8 @@ resource "aws_eip" "eip" {
 
 #EIP Association
 resource "aws_eip_association" "eip_assoc" {
-  count = var.enabled_eip ? 1 : 0
+  count = var.enabled_eip && !var.enable_asg ? 1 : 0
 
-  instance_id   = aws_instance.ec2.id
+  instance_id   = aws_instance.ec2[0].id
   allocation_id = aws_eip.eip[0].id
 }

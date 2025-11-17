@@ -21,6 +21,12 @@ variable "source_services" {
 }
 
 #------------EC2------------#
+variable "ami_id" {
+  type = string
+  default = data.aws_ami.ubuntu
+  description = "AMI ID for EC2 instance"
+}
+
 variable "enabled_eip" {
   type = bool
   default = true
@@ -77,6 +83,12 @@ variable "sg_egress" {
   description = "Map of egress rules for EC2 security group"
 }
 
+variable "enable_asg" {
+  type = bool
+  default = false
+  description = "Enable Auto Scaling Group (true) or deploy single EC2 instance (false)"
+}
+
 #------------ALB------------#
 variable "lb_name" {
   type = string
@@ -105,4 +117,65 @@ variable "target_groups" {
     target_type = optional(string, "instance")
     ec2_id = optional(string, null)
   }))
+}
+
+#------------Auto Scaling Group------------#
+variable "desired_capacity" {
+  type        = number
+  default     = 2
+  description = "Desired number of instances in ASG"
+}
+
+variable "min_size" {
+  type        = number
+  default     = 2
+  description = "Minimum number of instances in ASG"
+}
+
+variable "max_size" {
+  type        = number
+  default     = 4
+  description = "Maximum number of instances in ASG"
+}
+
+variable "health_check_type" {
+  type        = string
+  default     = "ELB"
+  description = "Health check type for Auto Scaling Group (EC2 or ELB)"
+}
+
+variable "health_check_grace_period" {
+  type        = number
+  default     = 300
+  description = "Time (in seconds) after instance launch before health checks start"
+}
+
+variable "termination_policies" {
+  type        = list(string)
+  default     = ["OldestInstance", "Default"]
+  description = "List of policies to use for instance termination"
+}
+
+variable "enable_cpu_scaling" {
+  type        = bool
+  default     = false
+  description = "Enable target tracking scaling policy based on CPU utilization"
+}
+
+variable "cpu_target_value" {
+  type        = number
+  default     = 90
+  description = "Target CPU utilization percentage for auto-scaling"
+}
+
+variable "enabled_metrics" {
+  type = list(string)
+  default = [
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+    "GroupTotalInstances"
+  ]
+  description = "List of CloudWatch metrics to enable for ASG"
 }

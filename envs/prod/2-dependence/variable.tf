@@ -32,6 +32,11 @@ variable "source_services" {
   type = list(string)
 }
 #------------Bastion------------#
+variable "ami_id" {
+  type = string
+  default = data.aws_ami.ubuntu-ami.id
+  description = "AMI ID for EC2 instance"
+}
 variable "enabled_eip" {
   type    = bool
   default = true

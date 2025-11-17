@@ -15,6 +15,12 @@ variable "tags" {
 }
 
 #---------------------EC2 instance---------------------#
+variable "ami_id" {
+  type        = string
+  default     = null
+  description = "AMI ID for EC2 instance (if null, uses Ubuntu 22.04 LTS)"
+}
+
 variable "instance_type" {
   default = "t3.micro"
   type    = string
@@ -28,14 +34,21 @@ variable "volume_size" {
 }
 
 variable "enabled_eip" {
-  type = bool
+  type    = bool
+  default = true
+  description = "Attach Elastic IP to single EC2 instance"
 }
 
 variable "instance_name" {
   type = string
 }
 
-variable "subnet_id" {}
+variable "subnet_id" {
+  type        = string
+  default     = null
+  nullable    = true
+  description = "Subnet ID for single EC2 instance (not used if enable_asg = true)"
+}
 
 variable "vpc_id" {
   type        = string
@@ -168,5 +181,161 @@ variable "cloudwatch_alarms" {
     ok_actions    = []
   }
   description = "CloudWatch alarm configuration for EC2 instance"
+}
+
+#---------------------Auto Scaling Group---------------------#
+variable "enable_asg" {
+  type        = bool
+  default     = false
+  description = "Enable Auto Scaling Group (true) or deploy single EC2 instance (false)"
+}
+
+variable "subnet_ids" {
+  type        = list(string)
+  default     = []
+  description = "List of subnet IDs for ASG to deploy instances across multiple AZs (required if enable_asg = true)"
+}
+
+variable "desired_capacity" {
+  type        = number
+  default     = 1
+  description = "Desired number of instances in ASG"
+}
+
+variable "max_size" {
+  type        = number
+  default     = 3
+  description = "Maximum number of instances in ASG"
+}
+
+variable "min_size" {
+  type        = number
+  default     = 1
+  description = "Minimum number of instances in ASG"
+}
+
+variable "health_check_type" {
+  type        = string
+  default     = "EC2"
+  description = "Health check type for ASG (EC2 or ELB)"
+  validation {
+    condition     = contains(["EC2", "ELB"], var.health_check_type)
+    error_message = "Health check type must be either EC2 or ELB"
+  }
+}
+
+variable "health_check_grace_period" {
+  type        = number
+  default     = 300
+  description = "Time (in seconds) after instance launch before health checks start"
+}
+
+variable "termination_policies" {
+  type        = list(string)
+  default     = ["Default"]
+  description = "List of policies to use for instance termination"
+}
+
+variable "target_group_arns" {
+  type        = list(string)
+  default     = null
+  description = "List of target group ARNs to attach to ASG (for ALB integration)"
+}
+
+variable "enabled_metrics" {
+  type = list(string)
+  default = [
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+    "GroupTotalInstances"
+  ]
+  description = "List of metrics to enable for ASG"
+}
+
+variable "wait_for_capacity_timeout" {
+  type        = string
+  default     = "10m"
+  description = "Maximum time to wait for desired capacity to be reached"
+}
+
+#---------------------Auto Scaling Policy---------------------#
+variable "enable_cpu_scaling" {
+  type        = bool
+  default     = true
+  description = "Enable target tracking scaling policy based on CPU utilization"
+}
+
+variable "cpu_target_value" {
+  type        = number
+  default     = 70
+  description = "Target CPU utilization percentage for target tracking scaling"
+}
+
+variable "enable_step_scaling" {
+  type        = bool
+  default     = false
+  description = "Enable step scaling policies (scale up/down based on CloudWatch alarms)"
+}
+
+variable "scale_up_adjustment" {
+  type        = number
+  default     = 1
+  description = "Number of instances to add when scaling up"
+}
+
+variable "scale_up_cooldown" {
+  type        = number
+  default     = 300
+  description = "Cooldown period (in seconds) after scaling up"
+}
+
+variable "scale_up_threshold" {
+  type        = number
+  default     = 80
+  description = "CPU utilization threshold to trigger scale up"
+}
+
+variable "scale_up_evaluation_periods" {
+  type        = number
+  default     = 2
+  description = "Number of periods to evaluate before scaling up"
+}
+
+variable "scale_up_period" {
+  type        = number
+  default     = 300
+  description = "Period (in seconds) for scale up evaluation"
+}
+
+variable "scale_down_adjustment" {
+  type        = number
+  default     = -1
+  description = "Number of instances to remove when scaling down"
+}
+
+variable "scale_down_cooldown" {
+  type        = number
+  default     = 300
+  description = "Cooldown period (in seconds) after scaling down"
+}
+
+variable "scale_down_threshold" {
+  type        = number
+  default     = 20
+  description = "CPU utilization threshold to trigger scale down"
+}
+
+variable "scale_down_evaluation_periods" {
+  type        = number
+  default     = 2
+  description = "Number of periods to evaluate before scaling down"
+}
+
+variable "scale_down_period" {
+  type        = number
+  default     = 300
+  description = "Period (in seconds) for scale down evaluation"
 }
 

@@ -66,3 +66,32 @@ target_groups = {
   }
 }
 
+#---------AUTO SCALING GROUP---------#
+# Enable ASG for high availability across multiple AZs
+enable_asg                = true
+
+# Capacity settings
+desired_capacity          = 2  # Start with 2 instances (one per AZ)
+min_size                  = 2  # Minimum 2 for high availability
+max_size                  = 3  # Scale up to 3 during high load
+
+# Health check configuration
+health_check_type         = "ELB"  # Use ALB health checks
+health_check_grace_period = 300    # 5 minutes for instance initialization
+
+# Termination policies
+termination_policies = ["OldestInstance", "Default"]
+
+# Auto Scaling Policy - CPU-based
+enable_cpu_scaling = true
+cpu_target_value   = 90  # Scale when average CPU > 90%
+
+# CloudWatch metrics
+enabled_metrics = [
+  "GroupMinSize",
+  "GroupMaxSize",
+  "GroupDesiredCapacity",
+  "GroupInServiceInstances",
+  "GroupTotalInstances"
+]
+
